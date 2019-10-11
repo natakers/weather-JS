@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<title>Weather</title>
+	<link rel="stylesheet" href="weather-icons-master/css/weather-icons.min.css">
+  <link rel="stylesheet" href="styleWork.css">
+</head>
+<body>
+
+
+<div id="app" >
+  <div id="city" class="flash"></div>
+  <div class="column active">
+    <div class="flash2 row">
+      <div  id="temp" >
+        
+      </div><span class="wi wi-celsius"></span>
+
+      <div class="icon">
+        <div id="sun">
+          <div id="rays"></div>
+        </div>
+        <div id="rain"></div>
+        <div id="cloud"></div>
+        <div id="snow">&#10052</div>
+        <div id="light"></div>
+        
+      </div>
+
+    </div>
+  	<div class="row">
+      <div class="column">
+        <span class="wi wi-raindrop"></span>
+        <span class="wi wi-strong-wind"></span>
+        <span class="wi wi-thermometer"></span>
+      </div>	
+      <div class="column flash1">
+        <div id="humidity"> %</div>  
+        <div id="wind"> м/с</div>
+        <div id="pressure"> мм рт. ст.</div>
+      </div>
+    </div>
+    <button id="add" onclick="add(cityName)">Add</button>
+    <button id="delete" onclick="del(cityName)">Delete</button>
+  </div>
+</div>
+
+<script>
+
+		var currentIndex = 0;
+    var cityName = ['london', 'rome'];
+		var elementsCount = cityName.length-1;
+    console.log(cityName.length);
+		
+		var url = '';
+    setTimeout(function(){
+    nonef()
+  }, 5000);
+	setInterval(function(){
+    sendGet()
+  }, 5000);
+
+function nonef(){
+  document.getElementById('app').style.display='block';
+}
+
+function sendGet(){
+  console.log(cityName);
+  console.log(cityName.length);
+  var xhr = new XMLHttpRequest();
+  url = 'http://api.openweathermap.org/data/2.5/weather?q=' + cityName[currentIndex] + '&units=metric&lang=ru&APPID=d0408d219dbe88683f61bc4831c71e4b';
+  xhr.open('GET', url, false);
+  xhr.send();
+  if (xhr.status != 200) {
+    alert('запрос не отправлен' + xhr.status + ': ' + xhr.statusText );
+  } else {
+    var a = JSON.parse(xhr.responseText);
+    console.log( xhr.responseText );
+    console.log(a.weather[0].icon);
+    console.log(typeof(a));
+    document.getElementById('city').innerHTML = a.name;
+    document.getElementById('temp').innerHTML = a.main.temp.toFixed(0);
+    document.getElementById('humidity').innerHTML = a.main.humidity;
+    document.getElementById('wind').innerHTML = a.wind.speed;
+    document.getElementById('pressure').innerHTML = ((a.main.pressure)*0.75).toFixed(0);
+    change(a);
+    
+    if (currentIndex < (cityName.length-1)) {
+      currentIndex =  ++currentIndex;
+    }
+    else currentIndex = 0;
+  }
+  console.log(a.weather[0].icon);
+  
+
+    
+}
+
+ function add(cityName) {
+          var a = prompt("Ввидите город");
+          cityName.push(a);
+          console.log(cityName);
+          console.log(cityName.length);
+          url = 'http://api.openweathermap.org/data/2.5/weather?q=' + cityName[cityName.length-1] + '&units=metric&lang=ru&APPID=d0408d219dbe88683f61bc4831c71e4b';
+           console.log(url);
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, false);
+          xhr.send();
+          if (xhr.status != 200) {
+          cityName.pop(a);
+          alert('запрос не отправлен' + xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
+          } else {
+          return cityName;  
+          }
+}
+
+  function del(cityName) {
+            a = prompt("Введите имя города из списка для удаления \n" + cityName);
+            console.log(cityName);
+            if ( cityName.length-1 > 0) {
+              for (var i = 0; i <= cityName.length-1; i++) {
+                if (cityName[i] == a) {
+                  cityName.splice(i, 1);
+                  console.log(cityName);
+                }
+              }
+            }
+            else alert("Нельзя удалить последний город");
+            return cityName;
+  }
+
+  function change(a) {
+      document.querySelector('div.icon>div').style.display='none';
+    if (a.weather[0].icon == '01d' || a.weather[0].icon == '01n' 
+      ||  a.weather[0].icon == '02d' ||  a.weather[0].icon == '02n' 
+      ||  a.weather[0].icon == '10n' ||  a.weather[0].icon == '10d' ) {
+      document.getElementById("sun").style.display='block';
+    }
+
+    if (a.weather[0].icon == '09d' || a.weather[0].icon == '09n' 
+      ||  a.weather[0].icon == '10n' ||  a.weather[0].icon == '10d') {
+      document.getElementById("rain").style.display='block';
+    }
+
+    if (a.weather[0].icon == '04d' || a.weather[0].icon == '04n' 
+      ||  a.weather[0].icon == '03d' ||  a.weather[0].icon == '03n' 
+      ||  a.weather[0].icon == '02d' ||  a.weather[0].icon == '02n'
+      ||  a.weather[0].icon == '09d' ||  a.weather[0].icon == '09n' 
+      ||  a.weather[0].icon == '11d' ||  a.weather[0].icon == '11n'
+      ||  a.weather[0].icon == '10n' ||  a.weather[0].icon == '10d') {
+      document.getElementById("cloud").style.display='block';
+    }
+
+    if (a.weather[0].icon == '13d' || a.weather[0].icon == '13n') {
+      document.getElementById("snow").style.display='block';
+    }
+
+    if (a.weather[0].icon == '11d' || a.weather[0].icon == '11n') {
+      document.getElementById("flash").style.display='block';
+    }
+  }
+     
+</script>
+</body>
+</html>
